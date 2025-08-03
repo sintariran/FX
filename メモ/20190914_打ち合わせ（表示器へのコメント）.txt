@@ -1,0 +1,30 @@
+流れ
+判断
+見づらいか
+遅れていないか
+
+
+・予知のチャート表示に関しては、常時表示でなく、
+・最新表示の色と旧い表示の色を変える
+・なましは0点を越えたタイミングが分かるようにポチをかく
+
+
+チェック対象表示器
+・Draw_Operation_Trade3：取引履歴 OK ⇒確認済（表示機能ＯＫ、取引タイミングNG）
+　-operation_position_1.csv
+　-operation_position_2.csv
+　-operation_position_3.csv
+　-operation_position_4.csv
+　-operation_position_5.csv
+　-operation_position_6.csv
+  -accel_info.csv
+・Draw_Value_On_Oscillator_Real2：量 OK
+  -volume_info.csv
+・Operation_Compare_Average_multi：なまし →OK
+  -ファイルなし
+・DrawGoalDateOnSubWindow：予知日時 →確認
+  -goalpredict_date_subwindow.csv
+・DrawGoalPriceOnSubWindow：予知価格 →確認
+  -goalpredict_price_subwindow
+・Draw_Operation通常表示（抵抗線、トップ）OK
+  -operation_signal_yyyymmddhhnnss.csv

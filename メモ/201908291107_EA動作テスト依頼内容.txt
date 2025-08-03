@@ -1,0 +1,12 @@
+●確認依頼内容
+
+signal_selected_setting.csvに記載されている各絞込内容に基づいて、
+信号のON/OFF結果が出力されているかのチェックをお願いします。
+※絞込パターンは、19個作成しました。
+
+●確認項目
+・注文成立時（signal_info.csv出力時）に、signal_onoff_list.csvが出力されるか。
+・signal_onoff_list.csv内に記載されている内容が、signal_info.csv上に出てくる注文情報（シグナル名、シグナルID、チケット番号）と合致しているか。
+・signal_onoff_list.csv内にsignal_selected_setting.csvに記載されているすべてのPkgNoと機能コードが記載されているか。
+・signal_onoff_list.csv内のONOFFの内容がsignal_selected_setting.csvに記載されている絞込内容通りに絞込されているか。
+※signal_onoff_list.csv上のONOFF列は、1:ON、2:OFFです。

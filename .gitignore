@@ -1,0 +1,50 @@
+# MetaTrader関連
+*.hst
+*.ex4
+*.dat
+MetaQuotes*/
+*.exe
+mqlcache.dat
+
+# ログファイル
+*.log
+logs/
+Logs/
+
+# 大きなExcelファイル
+平均足、周期、価格レンジ確認.xlsx
+EN_コピー05_検証_突発B.xlsm
+PKG配置_エクセル作成分登録用*.xlsm
+PKG配置_エクセル作成分登録用*.xlsx
+
+# 大きなCSVファイル（調整済みデータ）
+*_adjusted.csv
+
+# 一時ファイル・バックアップ
+~$*
+*.tmp
+*.bak
+*コピー*
+*.lnk
+
+# テスター関連
+tester/
+
+# キャッシュ
+caches/
+cache/
+
+# 履歴データ
+history/
+History/
+
+# レポート（必要に応じてコメントアウト）
+# *.htm
+# *.gif
+
+# 設定ファイル（環境依存）
+terminal.ini
+origin.txt
+
+# macOS
+.DS_Store
