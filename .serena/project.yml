@@ -1,2 +1,3 @@
 project_name: FX
-language: cpp  # MQL4 is based on C++
+language: other  # VBA and MQL4 are not directly supported
+description: FX取引システム - VBAによる取引分析・集計とMT4用EA開発
