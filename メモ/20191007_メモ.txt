@@ -1,29 +1,29 @@
-���ʊ֐�������
-�E�p�b�P�[�W�A���W�b�N�V�O�i���A�C���W�P�[�^�A�o�����[
-�@�|��������w��@�ˁ@�p�b�P�[�W�l�擾�i�ێ��z��ihold_row�j���Q�Ɓj
-�@�@�@�@�@�@�@�@�@�@�@���W�b�N�V�O�i���i�s�����̂܂܎Q�Ɓj
-�@�@�@�@�@�@�@�@�@�@�@�C���W�P�[�^�iGetIndicatorvalue�������āj
-�@�@�@�@�@�@�@�@�@�@�@�o�����[�i���̂܂ܒl���擾�j
-�@�˕Ԃ�l�́A�l�ƃX�e�[�g
+共通関数化する
+・パッケージ、ロジックシグナル、インジケータ、バリュー
+　−条件列を指定　⇒　パッケージ値取得（保持配列（hold_row）より参照）
+　　　　　　　　　　　ロジックシグナル（行をそのまま参照）
+　　　　　　　　　　　インジケータ（GetIndicatorvalueをつかって）
+　　　　　　　　　　　バリュー（そのまま値を取得）
+　⇒返り値は、値とステート
 
 
-�E�ϊ�����
-�@FirstSetPackageSettingState�i#�̕ϊ��j
-�@odud�̕ϊ��p�֐��̍쐬
+・変換処理
+　FirstSetPackageSettingState（#の変換）
+　odudの変換用関数の作成
 
 
-�E�擾�����������P�{�������֐��֓n��
-�@1�{�������֐��͊֐����Ŏg�p����֐��̃^�C�v���Z���N�g���Ď��s�B
+・取得した引数を１本化した関数へ渡す
+　1本化した関数は関数内で使用する関数のタイプをセレクトして実行。
 
-�E�o�͂͋��ʊ֐��ŏo�͑O�i������
-�@�z��ւ̊i�[����
+・出力は共通関数で出力前絞込処理
+　配列への格納処理
 
 
-���L�Q�́A�C���v�b�g���������Ă��Ȃ��i�s�v������j
+下記２つは、インプットしょりをしていない（不要だから）
 cross
 band
 
-type_yochi��range��ǂ�ł���
+type_yochiはrangeを読んでいる
 
-5268-1�������Əo��
-5268 �����W�͂΃V�[�g���甲����
+5268-1をちゃんと出す
+5268 レンジはばシートから抜いた

@@ -1,30 +1,30 @@
-—¬‚ê
-”»’f
-Œ©‚Ã‚ç‚¢‚©
-’x‚ê‚Ä‚¢‚È‚¢‚©
+æµã‚Œ
+åˆ¤æ–­
+è¦‹ã¥ã‚‰ã„ã‹
+é…ã‚Œã¦ã„ãªã„ã‹
 
 
-E—\’m‚Ìƒ`ƒƒ[ƒg•\¦‚ÉŠÖ‚µ‚Ä‚ÍAí•\¦‚Å‚È‚­A
-EÅV•\¦‚ÌF‚Æ‹Œ‚¢•\¦‚ÌF‚ğ•Ï‚¦‚é
-E‚È‚Ü‚µ‚Í0“_‚ğ‰z‚¦‚½ƒ^ƒCƒ~ƒ“ƒO‚ª•ª‚©‚é‚æ‚¤‚Éƒ|ƒ`‚ğ‚©‚­
+ãƒ»äºˆçŸ¥ã®ãƒãƒ£ãƒ¼ãƒˆè¡¨ç¤ºã«é–¢ã—ã¦ã¯ã€å¸¸æ™‚è¡¨ç¤ºã§ãªãã€
+ãƒ»æœ€æ–°è¡¨ç¤ºã®è‰²ã¨æ—§ã„è¡¨ç¤ºã®è‰²ã‚’å¤‰ãˆã‚‹
+ãƒ»ãªã¾ã—ã¯0ç‚¹ã‚’è¶ŠãˆãŸã‚¿ã‚¤ãƒŸãƒ³ã‚°ãŒåˆ†ã‹ã‚‹ã‚ˆã†ã«ãƒãƒã‚’ã‹ã
 
 
-ƒ`ƒFƒbƒN‘ÎÛ•\¦Ší
-EDraw_Operation_Trade3Fæˆø—š—ğ OK ËŠm”FÏi•\¦‹@”\‚n‚jAæˆøƒ^ƒCƒ~ƒ“ƒONGj
-@-operation_position_1.csv
-@-operation_position_2.csv
-@-operation_position_3.csv
-@-operation_position_4.csv
-@-operation_position_5.csv
-@-operation_position_6.csv
+ãƒã‚§ãƒƒã‚¯å¯¾è±¡è¡¨ç¤ºå™¨
+ãƒ»Draw_Operation_Trade3ï¼šå–å¼•å±¥æ­´ OK â‡’ç¢ºèªæ¸ˆï¼ˆè¡¨ç¤ºæ©Ÿèƒ½ï¼¯ï¼«ã€å–å¼•ã‚¿ã‚¤ãƒŸãƒ³ã‚°NGï¼‰
+ã€€-operation_position_1.csv
+ã€€-operation_position_2.csv
+ã€€-operation_position_3.csv
+ã€€-operation_position_4.csv
+ã€€-operation_position_5.csv
+ã€€-operation_position_6.csv
   -accel_info.csv
-EDraw_Value_On_Oscillator_Real2F—Ê OK
+ãƒ»Draw_Value_On_Oscillator_Real2ï¼šé‡ OK
   -volume_info.csv
-EOperation_Compare_Average_multiF‚È‚Ü‚µ ¨OK
-  -ƒtƒ@ƒCƒ‹‚È‚µ
-EDrawGoalDateOnSubWindowF—\’m“ú ¨Šm”F
+ãƒ»Operation_Compare_Average_multiï¼šãªã¾ã— â†’OK
+  -ãƒ•ã‚¡ã‚¤ãƒ«ãªã—
+ãƒ»DrawGoalDateOnSubWindowï¼šäºˆçŸ¥æ—¥æ™‚ â†’ç¢ºèª
   -goalpredict_date_subwindow.csv
-EDrawGoalPriceOnSubWindowF—\’m‰¿Ši ¨Šm”F
+ãƒ»DrawGoalPriceOnSubWindowï¼šäºˆçŸ¥ä¾¡æ ¼ â†’ç¢ºèª
   -goalpredict_price_subwindow
-EDraw_Operation’Êí•\¦i’ïRüAƒgƒbƒvjOK
+ãƒ»Draw_Operationé€šå¸¸è¡¨ç¤ºï¼ˆæŠµæŠ—ç·šã€ãƒˆãƒƒãƒ—ï¼‰OK
   -operation_signal_yyyymmddhhnnss.csv

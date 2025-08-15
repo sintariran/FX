@@ -1,8 +1,8 @@
-MT ���A����EA�Ńp�b�P�[�W�^�C�v�ǉ��A�Ώۃp�b�P�[�W���Q�Ƃ��Ȃ��悤�Ɍ������i���ݓ����j
+MT リアルのEAでパッケージタイプ追加、対象パッケージを参照しないように見直し（もみ統合）
 
-NL�@�������ɒ�R�����L�ڂ��邩�Q�Ɛ��range_setting����f�ނ���������
+NL　条件欄に抵抗線を記載するか参照先のrange_settingから素材を引っ張る
 TP  range_setting
-OB�@�蓮�p�b�P�[�W�̂��߁A�g�p����Q��
-PA�@�f�ނɍ����A�O���̑f�ރp�b�P�[�W���L�ڂ���i�Ή��ς݁j
+OB　手動パッケージのため、使用先を参照
+PA　素材に今足、前足の素材パッケージを記載する（対応済み）
 
-PO�@�Ή��ς�
+PO　対応済み

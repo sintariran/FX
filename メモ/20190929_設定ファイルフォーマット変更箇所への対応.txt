@@ -1,35 +1,35 @@
-�����iOS�W���V�[�g��
-D�� OK
-�ύX�O�t�H�[�}�b�g��PKG�ԍ�^�X�e�[�g|PKG�ԍ�^�X�e�[�g
-�ύX��t�H�[�}�b�g�˃��[�g�ԍ�|���[�g�ԍ�
+＜価格OS係数シート＞
+D列 OK
+変更前フォーマット⇒PKG番号^ステート|PKG番号^ステート
+変更後フォーマット⇒ルート番号|ルート番号
 
-E�� OK
-�ύX�Ȃ�
+E列 OK
+変更なし
 
-�������W����
-A��OK
-�ύX�O�t�H�[�}�b�g��PKG�ԍ�
-�ύX��t�H�[�}�b�g�˃��[�g�ԍ�/���[�g�ԍ�
+＜レンジ幅＞
+A列OK
+変更前フォーマット⇒PKG番号
+変更後フォーマット⇒ルート番号/ルート番号
 
-��OS�����g�ݍ��킹��
-F�� OK
-�ύX�O�t�H�[�}�b�g��PKG�ԍ�
-�ύX��t�H�[�}�b�g�˃��[�g�ԍ�/���[�g�ԍ�
+＜OS差分組み合わせ＞
+F列 OK
+変更前フォーマット⇒PKG番号
+変更後フォーマット⇒ルート番号/ルート番号
 
 
-���\�m�Ώێw�W��
-D��OK
-�ύX�O�t�H�[�}�b�g�˃^�[�Q�b�g^PKG�ԍ�
-�ύX��t�H�[�}�b�g�˃^�[�Q�b�g
+＜予知対象指標＞
+D列OK
+変更前フォーマット⇒ターゲット^PKG番号
+変更後フォーマット⇒ターゲット
 
-��FM�\���p��
-G�� OK
-�ύX�O�t�H�[�}�b�g�˃^�C�vPKG�ԍ�
-�ύX��t�H�[�}�b�g�˃��[�g�ԍ�/���[�g�ԍ�
+＜FM表示用＞
+G列 OK
+変更前フォーマット⇒タイプPKG番号
+変更後フォーマット⇒ルート番号/ルート番号
 
-��FM�Ď��p��
-G�� OK
-�ύX�O�t�H�[�}�b�g�˃^�C�vPKG�ԍ�
-�ύX��t�H�[�}�b�g�˃��[�g�ԍ�/���[�g�ԍ�
+＜FM監視用＞
+G列 OK
+変更前フォーマット⇒タイプPKG番号
+変更後フォーマット⇒ルート番号/ルート番号
 
-FM�\���AFM�Ď��A�����W����
+FM表示、FM監視、レンジ結合

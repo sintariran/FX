@@ -1,15 +1,15 @@
-Pkg���Ώ�
-�E�����̑���
-�E�I�[�o�[�V���[�g
-�E���i���B
-�E
+Pkg化対象
+・周期の揃い
+・オーバーシュート
+・価格到達
+・
 
-�E�אڎ����̑������c���^�m��Ő�������i���ϑ��ƍ��킹��j
-�E�S�����Ő�������
-�E������OsT,OsS�ɑ΂��āA�O����OsM,OsL�͓������A�O����OsT,OsS�͋t�������ǂ��炩�A
-�@�O�O����OsT,OsS,OsM,OsL���t�����������ĕԂ��Ă��Ă���B
-�O�O�O������Ȃ���ɂ́H
-�@�O�O�O����OsT,OsS,OsM,OsL�^�O�X��OsT,OsS�ƍ�������ɑ΂��đO��������Ԃ��Ă��邩�A�O������ɑ΂��āA�O�X�����������Ă��邩
-�@�ˁ@�O���������Ԃ��āA��������ɑ΂��đO��������Ԃ��Ă�������������邩�H
+・隣接周期の揃いが残足／確定で成立する（平均足と合わせる）
+・全周期で成立する
+・今足のOsT,OsSに対して、前足のOsM,OsLは同方向、前足のOsT,OsSは逆か同かどちらか、
+　前前足のOsT,OsS,OsM,OsLが逆方向を向いて返してきている。
+前前前足からつなげるには？
+　前前前足のOsT,OsS,OsM,OsL／前々足OsT,OsSと今足基準線に対して前足基準線が返しているか、前足基準線に対して、前々足がかえしているか
+　⇒　前足周期が返して、今足基準線に対して前足基準線が返しているも条件化するか？
 
-�E�אڎ����̑���
+・隣接周期の揃い
