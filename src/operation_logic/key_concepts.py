@@ -4,6 +4,8 @@ FXオペレーションロジック - 重要概念のコード化
 このモジュールは、メモファイル群から抽出したオペレーションロジックの
 核心概念をPythonクラスとして実装するための準備コードを提供します。
 
+レビュー対応: 統一データモデルの使用
+
 主要概念:
 1. 同逆判定 (DokyakuJudgment)
 2. 行帰判定 (IkikaeriJudgment)
@@ -17,59 +19,81 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
 import numpy as np
+import sys
+import os
 
+# 統一データモデルのインポート
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from models.data_models import (
+        TimeFrame, Direction, Currency, Period,
+        PriceData, HeikinAshiData, MarketData, IndicatorData,
+        DataModelConverter
+    )
+    UNIFIED_MODELS_AVAILABLE = True
+    
+    # 統一モデルとの互換性エイリアス
+    class IkikaeriType(Enum):
+        """行帰の種類を表す列挙型（統一版準拠）"""
+        IKI_IKI = "行行"         # 継続
+        IKI_KAERI = "行帰"       # 一時的戻り
+        KAERI_IKI = "帰行"       # 戻りから再進行
+        KAERI_MODORI = "帰戻"    # 完全転換
+    
+except ImportError:
+    # フォールバック: レガシー定義（後方互換性）
+    UNIFIED_MODELS_AVAILABLE = False
+    
+    class Direction(Enum):
+        """方向性を表す列挙型（レガシー）"""
+        UP = 1      # 上方向
+        DOWN = 2    # 下方向
+        NONE = 0    # 方向性なし
+    
+    class TimeFrame(Enum):
+        """時間足を表す列挙型（レガシー）"""
+        M1 = "1M"     # 1分足
+        M5 = "5M"     # 5分足
+        M15 = "15M"   # 15分足
+        M30 = "30M"   # 30分足
+        H1 = "1H"     # 1時間足
+        H4 = "4H"     # 4時間足
+    
+    class IkikaeriType(Enum):
+        """行帰の種類を表す列挙型（レガシー）"""
+        IKI_IKI = "行行"    # 継続
+        IKI_KAERI = "行帰"  # 一時的戻り
+        KAERI_IKI = "帰行"  # 戻りから再進行
+        KAERI_MODORI = "帰戻"  # 完全転換
+    
+    @dataclass
+    class PriceData:
+        """価格データを格納するデータクラス（レガシー）"""
+        open: float
+        high: float
+        low: float
+        close: float
+        timestamp: pd.Timestamp
+        timeframe: TimeFrame
+    
+    @dataclass
+    class HeikinAshiData:
+        """平均足データを格納するデータクラス（レガシー）"""
+        open: float
+        high: float
+        low: float
+        close: float
+        direction: Direction
+        timestamp: pd.Timestamp
+        timeframe: TimeFrame
 
-class Direction(Enum):
-    """方向性を表す列挙型"""
-    UP = 1      # 上方向
-    DOWN = 2    # 下方向
-    NONE = 0    # 方向性なし
-
-
-class TimeFrame(Enum):
-    """時間足を表す列挙型"""
-    M1 = "1M"     # 1分足
-    M5 = "5M"     # 5分足
-    M15 = "15M"   # 15分足
-    M30 = "30M"   # 30分足
-    H1 = "1H"     # 1時間足
-    H4 = "4H"     # 4時間足
-
-
-class IkikaeriType(Enum):
-    """行帰の種類を表す列挙型"""
-    IKI_IKI = "行行"    # 継続
-    IKI_KAERI = "行帰"  # 一時的戻り
-    KAERI_IKI = "帰行"  # 戻りから再進行
-    KAERI_MODORI = "帰戻"  # 完全転換
-
-
+# オペレーションロジック専用のIndicatorData定義（統一モデルと併用）
 @dataclass
-class PriceData:
-    """価格データを格納するデータクラス"""
-    open: float
-    high: float
-    low: float
-    close: float
-    timestamp: pd.Timestamp
-    timeframe: TimeFrame
-
-
-@dataclass
-class HeikinAshiData:
-    """平均足データを格納するデータクラス"""
-    open: float
-    high: float
-    low: float
-    close: float
-    direction: Direction
-    timestamp: pd.Timestamp
-    timeframe: TimeFrame
-
-
-@dataclass
-class IndicatorData:
-    """指標データを格納するデータクラス"""
+class OperationIndicatorData:
+    """
+    オペレーションロジック専用指標データ
+    統一IndicatorDataを拡張してメモ仕様対応
+    """
     os_value: float          # Os指標値
     os_direction: Direction  # Os方向
     os_increase: bool        # Os増減
