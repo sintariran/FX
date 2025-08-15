@@ -50,7 +50,7 @@ class PKGId:
         self.sequence = sequence
     
     def __str__(self) -> str:
-        return f"{self.timeframe.value}{self.period.value:02d}{self.currency.value}^{self.layer}-{self.sequence}"
+        return f"{self.timeframe.value}{self.period.value}{self.currency.value}^{self.layer}-{self.sequence}"
     
     @classmethod
     def parse(cls, pkg_id_str: str) -> 'PKGId':
@@ -60,8 +60,8 @@ class PKGId:
             layer, sequence = layer_seq.split('-')
             
             timeframe = TimeFrame(int(base[0]))
-            period = Period(int(base[1:3]))
-            currency = Currency(int(base[3]))
+            period = Period(int(base[1]))  # 周期は1桁
+            currency = Currency(int(base[2]))  # 通貨は3桁目
             
             return cls(timeframe, period, currency, int(layer), int(sequence))
         except Exception as e:
@@ -158,9 +158,9 @@ class ROFunction(BasePKGFunction):
     def execute(self, data: Dict[str, Any]) -> int:
         input_value = data.get('input_value', 0.0)
         
-        # メモ仕様: 材料から0.49999を引いて四捨五入処理
-        adjusted_value = float(input_value) - 0.49999
-        result = math.floor(adjusted_value) if adjusted_value >= 0 else math.ceil(adjusted_value)
+        # Excel ROUNDDOWN(value, 0)と同等: 0方向への切り捨て
+        # 正の数: floor、負の数: ceil（絶対値が小さくなる方向）
+        result = math.trunc(float(input_value))
         
         return int(result)
 
@@ -265,10 +265,10 @@ def create_test_pkg_id(layer: int = 1, sequence: int = 1) -> PKGId:
 def test_pkg_id_memo_specification(runner: TDDTestRunner):
     """
     テスト: PKG ID仕様（メモファイル基準）
-    メモ仕様: 1091^2-126 = 1分足, 周期なし(09), USDJPY, 第2階層, 126番
+    メモ仕様: 191^2-126 = 1分足, 周期なし(9), USDJPY, 第2階層, 126番
     """
     # Red: まず失敗するテストを書く
-    pkg_id = PKGId.parse("1091^2-126")
+    pkg_id = PKGId.parse("191^2-126")
     
     runner.assert_equal(pkg_id.timeframe, TimeFrame.M1, "PKG ID: Timeframe (1分足)")
     runner.assert_equal(pkg_id.period, Period.COMMON, "PKG ID: Period (周期なし)")
@@ -278,7 +278,7 @@ def test_pkg_id_memo_specification(runner: TDDTestRunner):
     
     # 文字列化テスト
     pkg_str = str(pkg_id)
-    runner.assert_equal(pkg_str, "1091^2-126", "PKG ID: String representation")
+    runner.assert_equal(pkg_str, "191^2-126", "PKG ID: String representation")
 
 def test_z_function_memo_specification(runner: TDDTestRunner):
     """
@@ -413,24 +413,31 @@ def test_co_function_memo_specification(runner: TDDTestRunner):
 
 def test_ro_function_memo_specification(runner: TDDTestRunner):
     """
-    テスト: RO関数仕様（メモファイル基準）
-    メモ仕様: 材料から0.49999を引いて四捨五入処理
+    テスト: RO関数仕様（Excel ROUNDDOWN準拠）
+    ExcelのROUNDDOWN(value, 0)と同等: 0方向への切り捨て
     """
     pkg_id = create_test_pkg_id()
     ro_func = ROFunction(pkg_id)
     
-    # メモ仕様の重要テストケース
+    # Excel ROUNDDOWN仕様のテストケース
     test_cases = [
-        (1.9, 1),    # 1.9 - 0.49999 = 1.40001 → floor = 1
-        (2.7, 2),    # 2.7 - 0.49999 = 2.20001 → floor = 2
-        (0.3, 0),    # 0.3 - 0.49999 = -0.19999 → ceil = 0
-        (5.0, 4),    # 5.0 - 0.49999 = 4.50001 → floor = 4
-        (0.49999, 0), # Edge case: exactly the offset
+        # 正の数: 小数点以下切り捨て
+        (1.9, 1),     # 1.9 → 1
+        (2.7, 2),     # 2.7 → 2
+        (0.3, 0),     # 0.3 → 0
+        (5.0, 5),     # 5.0 → 5（変更: 整数はそのまま）
+        (0.99999, 0), # 0.99999 → 0
+        
+        # 負の数: 0方向への切り捨て（絶対値が小さくなる方向）
+        (-1.9, -1),   # -1.9 → -1（Excel準拠）
+        (-2.7, -2),   # -2.7 → -2（Excel準拠）
+        (-0.3, 0),    # -0.3 → 0
+        (-5.0, -5),   # -5.0 → -5
     ]
     
     for input_val, expected in test_cases:
         result = ro_func.execute({'input_value': input_val})
-        runner.assert_equal(result, expected, f"RO: ROUNDDOWN memo spec ({input_val})")
+        runner.assert_equal(result, expected, f"RO: Excel ROUNDDOWN ({input_val})")
 
 def test_pkg_factory_memo_integration(runner: TDDTestRunner):
     """
