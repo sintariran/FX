@@ -152,13 +152,13 @@ impl TradingEngine {
             self.calculate_rsi(&tick)
         );
         
-        // 分岐探索（既存PKGロジックの移植）
-        let signal = self.branch_search(osma, macd, rsi).await?;
+        // PKG関数型DAG評価（既存PKGロジックの移植）
+        let signal = self.evaluate_pkg_dag(osma, macd, rsi).await?;
         
         Ok(serde_wasm_bindgen::to_value(&signal)?)
     }
     
-    async fn branch_search(&self, 
+    async fn evaluate_pkg_dag(&self, 
                           osma: f64, 
                           macd: MacdResult, 
                           rsi: f64) -> Result<Signal, Error> {
