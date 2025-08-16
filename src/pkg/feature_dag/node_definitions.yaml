@@ -1,0 +1,211 @@
+# Feature DAG Node Definitions
+# データ駆動ノード定義システム（レビューフィードバック対応）
+
+version: "1.0"
+description: "Feature DAG node definitions for PKG architecture"
+
+# ノード定義スキーマ
+schema:
+  node:
+    required: [id, layer, function, inputs, outputs, parameters]
+    properties:
+      id: 
+        type: string
+        pattern: "^\\d{3}\\^\\d+-\\d{3}$"
+      layer:
+        type: integer
+        minimum: 0
+        maximum: 5
+      function:
+        type: string
+        description: "Function name to execute"
+      inputs:
+        type: array
+        items:
+          type: string
+          pattern: "^\\d{3}\\^\\d+-\\d{3}$"
+      outputs:
+        type: object
+        description: "Output schema definition"
+      parameters:
+        type: object
+        description: "Configurable parameters"
+
+# 階層0: データ収集層
+data_collection:
+  - id: "391^0-001"
+    layer: 0
+    function: "collect_current_price"
+    inputs: []
+    outputs:
+      price: "float"
+      timestamp: "datetime"
+      quality_score: "float"
+    parameters:
+      currency: "USDJPY"
+      timeout_ms: 100
+
+  - id: "391^0-002"
+    layer: 0
+    function: "collect_volume_data"
+    inputs: []
+    outputs:
+      volume: "float"
+      volume_avg_5m: "float"
+      volume_spike_ratio: "float"
+    parameters:
+      window_size: 5
+      spike_threshold: 2.0
+
+  - id: "391^0-003"
+    layer: 0
+    function: "collect_spread_data"
+    inputs: []
+    outputs:
+      spread: "float"
+      spread_normalized: "float"
+      spread_percentile: "float"
+    parameters:
+      lookback_periods: 100
+
+# 階層1: 基本指標層
+basic_indicators:
+  - id: "391^1-001"
+    layer: 1
+    function: "calculate_heikin_ashi"
+    inputs: ["391^0-001"]
+    outputs:
+      ha_open: "float"
+      ha_high: "float"
+      ha_low: "float"
+      ha_close: "float"
+      ha_direction: "int"
+    parameters:
+      smoothing_factor: 0.1
+
+  - id: "391^1-002"
+    layer: 1
+    function: "calculate_price_changes"
+    inputs: ["391^0-001"]
+    outputs:
+      price_change: "float"
+      price_change_pct: "float"
+      price_momentum: "float"
+    parameters:
+      periods: [1, 5, 15]
+
+  - id: "391^1-003"
+    layer: 1
+    function: "calculate_range_metrics"
+    inputs: ["391^0-001"]
+    outputs:
+      range_width: "float"
+      range_position: "float"
+      volatility_index: "float"
+    parameters:
+      range_periods: 20
+
+# 階層2: 複合指標層
+composite_indicators:
+  - id: "391^2-001"
+    layer: 2
+    function: "calculate_deviation_metrics"
+    inputs: ["391^1-001", "391^1-002"]
+    outputs:
+      deviation_score: "float"
+      deviation_direction: "int"
+      confidence_level: "float"
+    parameters:
+      deviation_threshold: 0.02
+      lookback_periods: 50
+
+  - id: "391^2-002"
+    layer: 2
+    function: "calculate_momentum_indicators"
+    inputs: ["391^1-002", "391^1-003"]
+    outputs:
+      momentum_strength: "float"
+      momentum_acceleration: "float"
+      trend_stability: "float"
+    parameters:
+      ma_periods: [5, 10, 20]
+
+# 階層3: パターン認識層
+pattern_recognition:
+  - id: "391^3-001"
+    layer: 3
+    function: "detect_momi_pattern"
+    inputs: ["391^2-001", "391^2-002"]
+    outputs:
+      momi_score: "float"
+      momi_direction: "int"
+      pattern_confidence: "float"
+    parameters:
+      min_range_width: 3  # pips
+      max_range_width: 10
+
+  - id: "391^3-002"
+    layer: 3
+    function: "detect_dokyaku_pattern"
+    inputs: ["391^2-001", "391^1-001"]
+    outputs:
+      dokyaku_score: "float"
+      direction_agreement: "bool"
+      reliability_score: "float"
+    parameters:
+      agreement_threshold: 0.7
+
+# 階層4: マルチタイムフレーム統合
+timeframe_integration:
+  - id: "391^4-001"
+    layer: 4
+    function: "integrate_timeframe_signals"
+    inputs: ["391^3-001", "391^3-002"]
+    outputs:
+      unified_signal: "float"
+      signal_strength: "float"
+      timeframe_alignment: "float"
+    parameters:
+      timeframes: ["M1", "M5", "M15"]
+      weight_factors: [0.3, 0.4, 0.3]
+
+# 階層5: エクスポート層
+export_layer:
+  - id: "391^5-001"
+    layer: 5
+    function: "export_feature_summary"
+    inputs: ["391^4-001"]
+    outputs:
+      feature_vector: "array"
+      metadata: "object"
+      quality_metrics: "object"
+    parameters:
+      export_format: "standardized"
+      include_metadata: true
+      quality_threshold: 0.8
+
+# AI エージェント対応パラメータ化設定
+ai_agent_config:
+  exploration_parameters:
+    - parameter: "deviation_threshold"
+      range: [0.01, 0.05]
+      step: 0.001
+      description: "乖離判定の閾値"
+    
+    - parameter: "momentum_periods"
+      range: [[3,5,10], [5,10,20], [10,20,50]]
+      type: "categorical"
+      description: "モメンタム計算期間"
+    
+    - parameter: "momi_range_width"
+      range: [2, 15]
+      step: 1
+      description: "もみ合い判定の範囲幅"
+
+  optimization_targets:
+    - metric: "prediction_accuracy"
+      weight: 0.5
+    - metric: "signal_stability"
+      weight: 0.3
+    - metric: "execution_speed"
+      weight: 0.2
