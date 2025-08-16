@@ -1,23 +1,53 @@
 """
 取引DAG (Trading DAG)
-全体統合と最終執行判断を行う
+注文執行とポジション管理を行う取引層
 
-階層範囲: 200-299
-- 階層200: シグナル収集
-- 階層201: 整合性チェック
-- 階層202: 優先順位判定
-- 階層203: 財務制約適用
-- 階層204: 執行可否判定
-- 階層205: 最終執行指示
+階層範囲: 80-89
+- 80-84: 注文執行
+- 85-89: ポジション管理
+
+Phase 5実装内容:
+- 注文生成・執行
+- ポジション追跡
+- トレーリングストップ
+- 部分決済
 """
 
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, List, Optional
 
-__version__ = "1.0.0"
-__description__ = "PKG Trading DAG - 取引DAG実装"
+from .order_executor import (
+    OrderExecutorDAG, TradingOrder, OrderType, OrderSide, OrderStatus
+)
+from .position_manager import (
+    PositionManagerDAG, Position, PositionAdjustment, 
+    PositionStatus, AdjustmentType
+)
+
+__version__ = "5.0.0"
+__description__ = "PKG Trading DAG - 取引DAG実装 (Phase 5)"
+
+# 階層範囲定義
+TRADING_LAYER_RANGES = {
+    "order_execution": (80, 84),
+    "position_management": (85, 89)
+}
 
 # エクスポートする主要クラス
 __all__ = [
-    "SignalIntegrationLayer",
-    "TradingDAGManager"
+    # 注文執行
+    "OrderExecutorDAG",
+    "TradingOrder",
+    "OrderType",
+    "OrderSide",
+    "OrderStatus",
+    
+    # ポジション管理
+    "PositionManagerDAG",
+    "Position",
+    "PositionAdjustment",
+    "PositionStatus",
+    "AdjustmentType",
+    
+    # 定義
+    "TRADING_LAYER_RANGES"
 ]
