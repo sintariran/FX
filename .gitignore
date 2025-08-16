@@ -48,3 +48,62 @@ origin.txt
 
 # macOS
 .DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+
+# テスト分析スクリプト（一時的な分析用）
+analyze_*.py
+calculate_*.py
+test_improved_*.py
+test_kairi_*.py
+run_*_backtest.py
+run_*_with_*.py
+
+# バックテスト結果（大きなファイル）
+data/*_backtest_results.json
+data/histdata/*.csv
+
+# Serena (MCP) メモリ
+.serena/
+
+# 環境設定
+.env
+*.env
