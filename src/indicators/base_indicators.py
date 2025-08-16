@@ -1,6 +1,8 @@
 """
 FX取引システム基本指標計算エンジン
 メモ記載の指標定義に基づく実装
+
+レビュー対応: 統一データモデルの使用
 """
 
 import pandas as pd
@@ -8,38 +10,50 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
+import sys
+import os
 
-
-class TimeFrame(Enum):
-    """時間足定義"""
-    M1 = "1M"
-    M5 = "5M"
-    M15 = "15M"
-    M30 = "30M"
-    H1 = "1H"
-    H4 = "4H"
-
-
-@dataclass
-class PriceData:
-    """価格データ構造"""
-    timestamp: pd.Timestamp
-    open: float
-    high: float
-    low: float
-    close: float
-    volume: Optional[int] = None
-
-
-@dataclass
-class HeikinAshiData:
-    """平均足データ構造"""
-    timestamp: pd.Timestamp
-    ha_open: float
-    ha_high: float
-    ha_low: float
-    ha_close: float
-    direction: int  # 1: 陽線, -1: 陰線
+# 統一データモデルのインポート
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from models.data_models import (
+        TimeFrame, Direction, Currency, Period, 
+        PriceData, HeikinAshiData, MarketData, IndicatorData,
+        DataModelConverter
+    )
+    UNIFIED_MODELS_AVAILABLE = True
+except ImportError:
+    # フォールバック: レガシー定義（後方互換性）
+    UNIFIED_MODELS_AVAILABLE = False
+    
+    class TimeFrame(Enum):
+        """時間足定義（レガシー）"""
+        M1 = "1M"
+        M5 = "5M" 
+        M15 = "15M"
+        M30 = "30M"
+        H1 = "1H"
+        H4 = "4H"
+    
+    @dataclass
+    class PriceData:
+        """価格データ構造（レガシー）"""
+        timestamp: pd.Timestamp
+        open: float
+        high: float
+        low: float
+        close: float
+        volume: Optional[int] = None
+    
+    @dataclass
+    class HeikinAshiData:
+        """平均足データ構造（レガシー）"""
+        timestamp: pd.Timestamp
+        ha_open: float
+        ha_high: float
+        ha_low: float
+        ha_close: float
+        direction: int  # 1: 陽線, -1: 陰線
 
 
 class BaseIndicators:
