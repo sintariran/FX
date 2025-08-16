@@ -288,11 +288,11 @@ def demo_dag_engine():
     )
     
     # Layer 2: Layer 1の結果を処理
-    # Layer 1の結果を選択
+    # Layer 1の結果を選択（階層順に整理）
     engine.register_function(
         pkg_id="391^2-001",
         function_type="SL",
-        input_refs=["391^1-002", "391^1-001", "391^0-AA001"],  # 条件, 真の値, 偽の値
+        input_refs=["391^1-002", "391^0-AA001", "391^1-001"],  # 条件, 偽の値（生データ）, 真の値
         default=0
     )
     
