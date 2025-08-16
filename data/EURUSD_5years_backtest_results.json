@@ -1,0 +1,33 @@
+{
+  "initial_balance": 1000000,
+  "final_balance": 999688.5880699967,
+  "total_pnl": -311.4119299999926,
+  "total_trades": 427,
+  "winning_trades": 65803,
+  "losing_trades": 68682,
+  "win_rate": 15410.538641686182,
+  "max_drawdown": 0.03122167400035541,
+  "return_pct": -0.031141193000331985,
+  "yearly_performance": {
+    "2019": {
+      "return": -0.031141193000331985,
+      "end_balance": 999688.5880699967
+    },
+    "2020": {
+      "return": 0.0,
+      "end_balance": 999688.5880699967
+    },
+    "2021": {
+      "return": 0.0,
+      "end_balance": 999688.5880699967
+    },
+    "2022": {
+      "return": 0.0,
+      "end_balance": 999688.5880699967
+    },
+    "2023": {
+      "return": 0.0,
+      "end_balance": 999688.5880699967
+    }
+  }
+}
