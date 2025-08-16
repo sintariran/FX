@@ -1,0 +1,274 @@
+# Prometheus Alert Rules for FX Trading System
+# Critical business and system alerts
+
+groups:
+  # FX Trading Application Alerts
+  - name: fx_trading_alerts
+    rules:
+      # Application availability
+      - alert: FXTradingAppDown
+        expr: up{job="fx-trading-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "FX Trading Application is down"
+          description: "The FX trading application has been down for more than 30 seconds"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: fx_trading_response_time_ms > 50
+        for: 2m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High response time detected"
+          description: "Average response time is {{ $value }}ms, above 50ms threshold"
+
+      # Critical response time
+      - alert: CriticalResponseTime
+        expr: fx_trading_response_time_ms > 100
+        for: 1m
+        labels:
+          severity: critical
+          component: performance
+        annotations:
+          summary: "Critical response time detected"
+          description: "Average response time is {{ $value }}ms, above 100ms threshold"
+
+      # Error rate
+      - alert: HighErrorRate
+        expr: rate(fx_trading_errors_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}, above 5% threshold"
+
+      # Critical error rate
+      - alert: CriticalErrorRate
+        expr: rate(fx_trading_errors_total[5m]) > 0.10
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}, above 10% threshold"
+
+  # Trading Risk Alerts
+  - name: trading_risk_alerts
+    rules:
+      # High drawdown
+      - alert: HighDrawdown
+        expr: fx_trading_drawdown_percent > 3.0
+        for: 1m
+        labels:
+          severity: warning
+          component: risk
+        annotations:
+          summary: "High drawdown detected"
+          description: "Current drawdown is {{ $value }}%, above 3% threshold"
+
+      # Critical drawdown
+      - alert: CriticalDrawdown
+        expr: fx_trading_drawdown_percent > 5.0
+        for: 30s
+        labels:
+          severity: critical
+          component: risk
+        annotations:
+          summary: "Critical drawdown - immediate attention required"
+          description: "Current drawdown is {{ $value }}%, above 5% threshold. Trading may be halted."
+
+      # Large loss
+      - alert: LargeLoss
+        expr: fx_trading_daily_pnl < -10000
+        for: 1m
+        labels:
+          severity: warning
+          component: risk
+        annotations:
+          summary: "Large daily loss detected"
+          description: "Daily P&L is ¥{{ $value }}, below -¥10,000 threshold"
+
+      # Excessive positions
+      - alert: TooManyPositions
+        expr: fx_trading_open_positions > 8
+        for: 2m
+        labels:
+          severity: warning
+          component: risk
+        annotations:
+          summary: "Too many open positions"
+          description: "{{ $value }} positions open, above normal threshold"
+
+      # Trading halted
+      - alert: TradingHalted
+        expr: fx_trading_is_halted == 1
+        for: 0s
+        labels:
+          severity: critical
+          component: risk
+        annotations:
+          summary: "Trading has been halted"
+          description: "Automated trading has been stopped due to risk management rules"
+
+  # System Resource Alerts
+  - name: system_alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: 100 - ((node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Container memory limit
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name="fx-trading-app"} / container_spec_memory_limit_bytes{name="fx-trading-app"}) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          component: container
+        annotations:
+          summary: "Container memory usage critical"
+          description: "FX trading container using {{ $value }}% of memory limit"
+
+  # Database Alerts
+  - name: database_alerts
+    rules:
+      # PostgreSQL down
+      - alert: PostgreSQLDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute"
+
+      # High database connections
+      - alert: HighDatabaseConnections
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High number of database connections"
+          description: "{{ $value }} active connections to PostgreSQL"
+
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute"
+
+  # Network and Connectivity Alerts
+  - name: network_alerts
+    rules:
+      # OANDA API connectivity
+      - alert: OandaAPIDown
+        expr: fx_trading_oanda_api_status == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: external_api
+        annotations:
+          summary: "OANDA API connectivity issues"
+          description: "Cannot connect to OANDA API for {{ $value }} minutes"
+
+      # WebSocket disconnection
+      - alert: WebSocketDisconnected
+        expr: fx_trading_websocket_connected == 0
+        for: 1m
+        labels:
+          severity: warning
+          component: connectivity
+        annotations:
+          summary: "WebSocket connection lost"
+          description: "Real-time data WebSocket has been disconnected"
+
+      # High network latency
+      - alert: HighNetworkLatency
+        expr: fx_trading_network_latency_ms > 100
+        for: 3m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "High network latency to trading servers"
+          description: "Network latency is {{ $value }}ms, above 100ms threshold"
+
+  # Business Logic Alerts
+  - name: business_alerts
+    rules:
+      # No trades for extended period
+      - alert: NoTradingActivity
+        expr: time() - fx_trading_last_trade_timestamp > 3600
+        for: 0s
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "No trading activity for over 1 hour"
+          description: "Last trade was {{ $value | humanizeDuration }} ago"
+
+      # Unusually high trade frequency
+      - alert: HighTradeFrequency
+        expr: rate(fx_trading_trades_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "Unusually high trade frequency"
+          description: "{{ $value }} trades per second, above normal threshold"
+
+      # Win rate dropping
+      - alert: LowWinRate
+        expr: fx_trading_win_rate_percent < 40
+        for: 10m
+        labels:
+          severity: warning
+          component: strategy
+        annotations:
+          summary: "Win rate below expected threshold"
+          description: "Current win rate is {{ $value }}%, below 40% threshold"

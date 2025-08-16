@@ -195,6 +195,42 @@ class BacktestEngine:
         
         return results
     
+    def open_position(self, timestamp: str, price: float, direction: int, size: float = 1.0):
+        """ポジションオープン"""
+        position = BacktestPosition(timestamp, price, direction, size)
+        self.positions.append(position)
+        self.total_trades += 1
+        self._log_trade(timestamp, "BUY" if direction == 1 else "SELL", price)
+        return position
+    
+    def close_position(self, position: BacktestPosition, timestamp: str, price: float):
+        """ポジションクローズ"""
+        pnl = position.close(timestamp, price)
+        self.balance += pnl
+        self.total_pnl += pnl
+        
+        if pnl > 0:
+            self.winning_trades += 1
+        else:
+            self.losing_trades += 1
+        
+        self.closed_positions.append(position)
+        self._log_trade(timestamp, "CLOSE", price, pnl)
+        self._update_drawdown()
+        
+        return pnl
+    
+    def calculate_performance(self):
+        """パフォーマンス計算"""
+        return self.get_results()
+    
+    def save_trade_history(self, filepath: str):
+        """取引履歴保存"""
+        with open(filepath, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['timestamp', 'action', 'price', 'pnl', 'balance'])
+            writer.writeheader()
+            writer.writerows(self.trade_history)
+    
     def save_results(self, filepath: str):
         """結果保存"""
         results = self.get_results()

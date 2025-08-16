@@ -80,13 +80,37 @@ class SLFunction(BasePKGFunction):
     - 範囲指定の行数分用意
     - 出力値は範囲指定の行番号（1〜n）
     - 条件はタイプX2の出力値が3のルートIDを各範囲指定の行数別に指定
+    
+    重要な挙動:
+    - 範囲外アクセス時: default値（通常は0またはNone）を返す
+    - 後段処理への影響: 
+      * Noneが返された場合、後続のPKG関数は適切にハンドリング必要
+      * 数値演算関数（Z等）はNoneを0として扱うか、エラーとするか明確化要
+      * DAG評価時、Noneは「選択なし」を示す特殊値として伝播
+    
+    使用例:
+    - MATCH→INDEX相当の処理で、一致なし時はNone
+    - 条件分岐で、どの条件も満たさない場合のフォールバック
     """
     
     def __init__(self, pkg_id: PKGId):
         super().__init__(pkg_id)
         
     def execute(self, data: Dict[str, Any]) -> Any:
-        """SL関数実行"""
+        """
+        SL関数実行
+        
+        Args:
+            data: {
+                'condition': 選択条件（bool/数値）
+                'options': 選択肢リスト
+                'default': デフォルト値（オプション不足時）
+            }
+            
+        Returns:
+            選択された値、またはdefault値
+            後段の関数はこの返り値を適切に処理する必要がある
+        """
         condition = data.get('condition', 0)
         options = data.get('options', [])
         default_value = data.get('default', 0)
@@ -106,6 +130,8 @@ class SLFunction(BasePKGFunction):
         if index < len(options):
             return options[index]
         else:
+            # 範囲外の場合、default値を返す
+            # 後段関数はこの値を検知して適切に処理すること
             return default_value
 
 class MNFunction(BasePKGFunction):
@@ -418,24 +444,31 @@ class ROFunction(BasePKGFunction):
     """
     RO関数 - ROUNDDOWN関数
     
-    メモファイルから抽出:
-    - 2ステップ構成
-    - ステップ1: Z(2)で材料から0.49999を引く
-    - ステップ2: 四捨五入処理
+    ExcelのROUNDDOWN(number, 0)と同等の処理:
+    - 正の数: 小数点以下を切り捨て（floor）
+    - 負の数: 0方向への切り捨て（ceil）
+    
+    注意: メモファイルには「0.49999を引いてから処理」とあるが、
+    これは正の数に対してのみ有効。負の数では異なる処理が必要。
+    本実装はExcelのROUNDDOWN仕様に準拠し、math.truncを使用。
     """
     
     def __init__(self, pkg_id: PKGId):
         super().__init__(pkg_id)
         
     def execute(self, data: Dict[str, Any]) -> int:
-        """RO関数実行"""
+        """
+        RO関数実行
+        
+        ExcelのROUNDDOWN(value, 0)と同等:
+        - 正の数: 1.9 → 1, 2.7 → 2
+        - 負の数: -1.9 → -1, -2.7 → -2
+        """
         input_value = data.get('input_value', 0.0)
         
-        # ステップ1: 0.49999を引く（Z(2)相当）
-        adjusted_value = float(input_value) - 0.49999
-        
-        # ステップ2: 四捨五入処理（実際にはROUNDDOWN）
-        result = math.floor(adjusted_value) if adjusted_value >= 0 else math.ceil(adjusted_value)
+        # Excelと同じ「0方向への切り捨て」
+        # Python3のmath.truncがまさにこの動作
+        result = math.trunc(float(input_value))
         
         return int(result)
 
