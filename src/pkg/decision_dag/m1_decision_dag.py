@@ -220,8 +220,9 @@ class M1DecisionDAG:
         """出来高スパイク信号を生成"""
         features = feature_bundle.get("features", {})
         
-        # 簡易実装（実際にはvolume_spike_ratioを使用）
-        volume_spike = 1.0  # デフォルト値
+        # ボリュームスパイク取得
+        volume_key = f"{self.currency_pair}_{self.timeframe}_volume_spike"
+        volume_spike = features.get(volume_key, {}).get("value", 1.0) if volume_key in features else 1.0
         
         if volume_spike > 2.0:  # 2倍以上のスパイク
             return {
