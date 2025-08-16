@@ -1,0 +1,11 @@
+{
+  "initial_balance": 1000000,
+  "final_balance": 3025005.782589514,
+  "total_pnl": 2025005.7825894996,
+  "total_trades": 3076,
+  "winning_trades": 1518,
+  "losing_trades": 1558,
+  "win_rate": 49.34980494148245,
+  "max_drawdown": 6.9300211556801345,
+  "return_pct": 202.50057825895138
+}

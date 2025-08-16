@@ -16,7 +16,7 @@
 - 191^系統の階層的識別子体系
 - 6つの時間足（1分、5分、15分、30分、60分、240分）での並列実行
 - 関数合成による大規模ロジック構成
-- ベース層からの連続的データフロー
+- 生データ記号からの連続的データフロー
 
 ## 2. PKGシステムアーキテクチャ
 
@@ -45,7 +45,7 @@
 │  └─────────────────────────────────────────────┘   │
 │                      ▲                             │
 │  ┌─────────────────────────────────────────────┐   │
-│  │            基本指標層（階層1）                 │   │
+│  │        生データ記号処理層（階層1）             │   │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐ │   │
 │  │  │ Value    │  │ Logic    │  │ Indicator│ │   │
 │  │  │ 基本     │  │ Signal   │  │ Value    │ │   │
@@ -54,7 +54,7 @@
 │  └─────────────────────────────────────────────┘   │
 │                      ▲                             │
 │  ┌─────────────────────────────────────────────┐   │
-│  │              ベース層（連続値）                │   │
+│  │           生データ記号層（2700記号）           │   │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐ │   │
 │  │  │ 平均足   │  │ MA,      │  │ 価格     │ │   │
 │  │  │ OHLC     │  │ ボリバン │  │ レンジ   │ │   │
@@ -75,10 +75,10 @@ class PKGFunction:
     id: str                 # [時間足][周期][通貨]^[階層]-[連番] (例: 191^2-126)
     function_type: str      # Z, SL, OR, AND, CO, SG, AS, MN, etc.
     input_arity: int        # 入力数（2, 4, 8等）
-    input_refs: List[str]   # 参照するルートID
+    input_refs: List[str]   # 参照する生データ記号(AA001等)またはPKG ID
     output_type: str        # "code" (1,2,3) or "value" (連続値)
     timeframe: str          # 対象時間足
-    level: int             # 階層レベル (1:基本指標, 2:演算結果, 3:統合判断...)
+    level: int             # 階層レベル (1:生データのみ, 2:階層1参照, 3:階層1,2参照...)
     
     def evaluate(self, inputs: Dict[str, Any]) -> Any:
         """関数評価実行"""
@@ -135,7 +135,7 @@ class PKGIDManager:
             'timeframe': int(match.group(1)),  # 1:1分,2:5分,3:15分,4:30分,5:1時間,6:4時間
             'period': int(match.group(2)),     # 9:共通(周期なし)、他:TSML周期
             'currency': int(match.group(3)),   # 1:USDJPY,2:EURUSD,3:EURJPY
-            'hierarchy': int(match.group(4)),  # 1:基本指標,2:演算結果,3以降:統合判断
+            'hierarchy': int(match.group(4)),  # 1:生データ参照,2:階層1参照,3以降:下位階層参照
             'sequence': int(match.group(5))    # 連番
         }
     
@@ -149,11 +149,15 @@ class PKGIDManager:
     
     def validate_hierarchy(self, function_id: str, input_refs: List[str]) -> bool:
         """階層依存関係検証"""
-        func_level = self.parse_function_id(function_id)['level']
+        func_level = self.parse_function_id(function_id)['hierarchy']
         
         for ref_id in input_refs:
-            ref_level = self.parse_function_id(ref_id)['level']
-            if ref_level >= func_level:  # 下位レベルのみ参照可能
+            if '^' in ref_id:  # PKG IDの場合
+                ref_level = self.parse_function_id(ref_id)['hierarchy']
+                if ref_level >= func_level:  # 自分より下位階層のみ参照可能
+                    return False
+            # 生データ記号(AA001等)は階層1でのみ参照可能
+            elif func_level != 1:
                 return False
         return True
 ```
@@ -191,8 +195,8 @@ class PKGFunctionType(Enum):
     I = "I"             # IDEAL関数（理想値計算）
     NL = "NL"           # LINEAR_LINE（線形補間）
     
-    # 基本パッケージ
-    VALUE = "VALUE"     # 基本パッケージ（Level 1）
+    # 生データシンボル
+    VALUE = "VALUE"     # 生データシンボルのみ（Level 1）
     LOGIC_SIGNAL = "LOGIC_SIGNAL"   # 上下計算シグナル
     INDICATOR_VALUE = "INDICATOR_VALUE" # 指標値
 
@@ -282,7 +286,7 @@ class PKGFunctionDAGEngine:
         execution_path = []
         direction_code = 3  # デフォルト: 待機
         
-        # 3. ベース層から順次関数評価
+        # 3. 階層順に関数評価（生データ記号→階層1→階層2...）
         for node_id in evaluation_order:
             function = self.function_registry[node_id]
             
@@ -318,8 +322,8 @@ class PKGFunctionDAGEngine:
             if ref_id in values:
                 inputs[ref_id] = values[ref_id]
             else:
-                # ベース層データから取得
-                inputs[ref_id] = self._get_base_layer_data(ref_id)
+                # 生データ記号から取得
+                inputs[ref_id] = self._get_raw_symbol_data(ref_id)
         return inputs
 ```
 
@@ -406,7 +410,7 @@ class LargeScaleLogicComposer:
         
         dag = nx.DiGraph()
         
-        # Level 1: 基本パッケージノード追加
+        # Level 1: 生データ処理ノード追加
         base_nodes = self._create_base_layer_nodes()
         dag.add_nodes_from(base_nodes)
         

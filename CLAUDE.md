@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+**重要: このプロジェクトでは必ず日本語で応答してください。すべてのコミュニケーションは日本語で行います。**
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## システム概要

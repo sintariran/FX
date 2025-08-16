@@ -1,0 +1,218 @@
+# FX Trading System - Production Docker Compose
+# Complete production environment with monitoring and persistence
+
+version: '3.8'
+
+services:
+  # Main FX Trading Application
+  fx-trading:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: production
+    container_name: fx-trading-app
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=production
+      - DB_HOST=postgres
+      - DB_NAME=fx_trading
+      - DB_USER=fx_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - OANDA_API_KEY=${OANDA_API_KEY}
+      - OANDA_ACCOUNT_ID=${OANDA_ACCOUNT_ID}
+      - OANDA_ENV=${OANDA_ENV:-practice}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ALERT_EMAIL=${ALERT_EMAIL}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./ssl:/app/ssl:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - fx-trading-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.8'
+        reservations:
+          memory: 512M
+          cpus: '0.4'
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fx-trading-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fx_trading
+      POSTGRES_USER: fx_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - fx-trading-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fx_user -d fx_trading"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: fx-trading-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - fx-trading-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: fx-trading-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - fx-trading
+    networks:
+      - fx-trading-network
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fx-trading-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - fx-trading-network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fx-trading-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - fx-trading-network
+
+  # Log aggregation with ELK Stack (Optional)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: fx-trading-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - fx-trading-network
+    profiles:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: fx-trading-logstash
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/logstash/config:/usr/share/logstash/config:ro
+      - ./logs:/var/log/fx-trading:ro
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - fx-trading-network
+    profiles:
+      - logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: fx-trading-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - fx-trading-network
+    profiles:
+      - logging
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+
+# Custom network
+networks:
+  fx-trading-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
